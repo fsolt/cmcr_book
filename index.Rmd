@@ -1,0 +1,24 @@
+--- 
+title: "Computational Methods for Cross-National Research"
+author: "Frederick Solt"
+date: "`r Sys.Date()`"
+site: bookdown::bookdown_site
+output: 
+  bookdown::gitbook:
+    lib_dir: assets
+    split_by: section
+    config:
+      toolbar:
+        position: static
+  bookdown::pdf_book:
+    keep_tex: yes
+documentclass: book
+bibliography: [book.bib, packages.bib]
+biblio-style: american-political-science-association2
+link-citations: yes
+github-repo: fsolt/cmcr
+description: "Cross-national research depends on having comparable data, but often the only information available is not comparable.  This book describes how to use computational tools to extract comparable data from incomparable or otherwise unusable information."
+---
+
+# CMCR
+

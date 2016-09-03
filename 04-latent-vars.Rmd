@@ -1,0 +1,2 @@
+# Cross-National Latent Variables {#latent}
+

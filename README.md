@@ -1,1 +1,1 @@
-# Computational Methods for Comparative Research
+# Computational Methods for Cross-National Research

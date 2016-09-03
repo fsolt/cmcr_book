@@ -1,0 +1,7 @@
+\contentsline {chapter}{\numberline {1}CMCR}{5}{chapter.1}
+\contentsline {chapter}{\numberline {2}Introduction}{7}{chapter.2}
+\contentsline {chapter}{\numberline {3}Crowdsourcing}{9}{chapter.3}
+\contentsline {chapter}{\numberline {4}Machine Learning}{11}{chapter.4}
+\contentsline {chapter}{\numberline {5}Cross-National Latent Variables}{13}{chapter.5}
+\contentsline {chapter}{\numberline {6}Public Opinion in One Country as a Latent Variable}{15}{chapter.6}
+\contentsline {chapter}{\numberline {7}Dynamic Comparative Public Opinion}{17}{chapter.7}
