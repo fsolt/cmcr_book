@@ -20,7 +20,7 @@ data {
 transformed data {
   int r[N];                      // modified response; r in {1 ... m_i + 1}
   int m;                         // # steps
-  m = max(y);
+  m = max(y) - 1;
 }
 parameters {
   vector<lower=0>[I] alpha;
