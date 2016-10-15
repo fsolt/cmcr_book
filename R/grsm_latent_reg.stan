@@ -25,15 +25,16 @@ transformed data {
 parameters {
   vector<lower=0>[I] alpha;
   vector[I-1] beta_free;
-  vector[m-1] kappa_free;
+  vector[m-1] kappa_free[I];
   vector[J] theta;
   vector[K] lambda;
 }
 transformed parameters {
   vector[I] beta;
-  vector[m] kappa;
+  vector[m] kappa[I];
   beta = append_row(beta_free, rep_vector(-1*sum(beta_free), 1));
-  kappa = append_row(kappa_free, rep_vector(-1*sum(kappa_free), 1));
+  for (i in 1:I)
+    kappa[i] = append_row(kappa_free[i], rep_vector(-1*sum(kappa_free[i]), 1));
 }
 model {
   vector[J] mu;
@@ -41,8 +42,9 @@ model {
   theta ~ normal(0, 1);
   alpha ~ lognormal(1, 1);
   beta_free ~ normal(0, 5);
-  kappa_free ~ normal(0, 5);
+  for (i in 1:I)
+    kappa_free[i] ~ normal(0, 5);
   for (n in 1:N)
     y[n] ~ categorical(grsm_probs(theta[jj[n]], mu[jj[n]], alpha[ii[n]],
-                                  beta[ii[n]], kappa));
+                                  beta[ii[n]], kappa[ii[n]]));
 }
