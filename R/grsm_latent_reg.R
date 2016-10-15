@@ -1,9 +1,11 @@
+library(rstan)
+
 # Attach the example dataset. The ltm package is required.
 data(Science, package = "ltm")
 
-# Convert dataset to an integer matrix with values 0 ... 3
+# Convert dataset to an integer matrix with values 1 ... 4
 M <- matrix(NA, ncol = ncol(Science), nrow = nrow(Science))
-for (i in 1:ncol(M)) M[, i] <- as.integer(Science[, i]) - 1
+for (i in 1:ncol(M)) M[, i] <- as.integer(Science[, i])
 
 # Assemble data list for Stan
 ex_list <- list( I = ncol(M), 
@@ -16,7 +18,7 @@ ex_list <- list( I = ncol(M),
                  W = matrix(1, nrow = nrow(M), ncol = 1) )
 
 # Run Stan model
-ex_fit <- stan(file = "grsm_latent_reg.stan", 
+ex_fit <- stan(file = "R/grsm_latent_reg.stan", 
                data = ex_list, 
                chains = 4, 
                cores = 4,

@@ -13,7 +13,7 @@ data {
   int<lower=1> N;                // # responses
   int<lower=1,upper=I> ii[N];    // i for n
   int<lower=1,upper=J> jj[N];    // j for n
-  int<lower=0> y[N];             // response for n; y in {0 ... m_i}
+  int<lower=0> y[N];             // response for n; y in {1 ... m_i}
   int<lower=1> K;                // # person covariates
   matrix[J,K] W;                 // person covariate matrix
 }
@@ -21,8 +21,6 @@ transformed data {
   int r[N];                      // modified response; r in {1 ... m_i + 1}
   int m;                         // # steps
   m = max(y);
-  for(n in 1:N)
-    r[n] = y[n] + 1;
 }
 parameters {
   vector<lower=0>[I] alpha;
@@ -45,6 +43,6 @@ model {
   beta_free ~ normal(0, 5);
   kappa_free ~ normal(0, 5);
   for (n in 1:N)
-    r[n] ~ categorical(grsm_probs(theta[jj[n]], mu[jj[n]], alpha[ii[n]],
+    y[n] ~ categorical(grsm_probs(theta[jj[n]], mu[jj[n]], alpha[ii[n]],
                                   beta[ii[n]], kappa));
 }
