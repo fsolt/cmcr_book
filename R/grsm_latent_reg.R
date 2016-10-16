@@ -22,7 +22,7 @@ ex_fit <- stan(file = "R/grsm_latent_reg.stan",
                data = ex_list, 
                chains = 4, 
                cores = 4,
-               iter = 500,
+               iter = 1200,
                seed = 324)
 
 # Plot of convergence statistics
