@@ -18,7 +18,6 @@ data {
   matrix[J,K] W;                 // person covariate matrix
 }
 transformed data {
-  int r[N];                      // modified response; r in {1 ... m_i + 1}
   int m;                         // # steps
   m = max(y) - 1;
 }
