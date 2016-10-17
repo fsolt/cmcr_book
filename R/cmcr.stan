@@ -20,13 +20,17 @@ data {
   int<lower=0> ss[Q];           // unconstrained steps (max score - 2) for indicator q
 }
 transformed data {
-  int G[N-1];				// number of missing years until next observed country-year (G for "gap")
+  int G[N-1]; // number of missing years until next observed country-year (G for "gap")
+  int<lower=0> S;
+  vector[Q] kpos;
+  
   for (n in 1:N-1) {
       G[n] = tt[n+1] - tt[n] - 1;
   }
   
-  int<lower=0> S;
   S = sum(ss);
+
+  kpos = cumulative_sum(append_row(rep_vector(1, 1), head(ss, Q-1)));
 }
 parameters {
   real<lower=0, upper=1> alpha[K, T]; // latent variable
@@ -55,8 +59,7 @@ model {
     y[n] ~ categorical(grsm_probs(alpha[kk[n], tt[n]],
                                   gamma[qq[n]],
                                   beta[qq[n]], 
-                                  // VVVV problem here: start position
-                                  segment(kappa, start, ss[qq[n]]+1)));
+                                  segment(kappa, kpos[qq[n]], ss[qq[n]]+1)));
     // prior for alpha for the next observed year by country as well as for all intervening missing y
     if (n < N) {
       if (tt[n] < T) {
