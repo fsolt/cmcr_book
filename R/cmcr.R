@@ -30,95 +30,31 @@ cores <- chains
 x <- ls
 ###
 
-data <- list(  K = max(x$ccode),
-               T = max(x$tcode),
-               Q = max(x$qcode),
-               N = length(x$score),
-               kk = x$ccode,
-               tt = x$tcode,
-               qq = x$qcode,
-               y = x$score,
-               m = x %>% 
-                    group_by(variable) %>%
-                    summarize(m = max(score)) %>% 
-                    select(m) %>% unlist())
+us <- x %>% 
+    group_by(qcode) %>%
+    summarize(ss = max(score) - 2) %>% 
+    select(ss) %>%
+    unlist() %>% 
+    as.numeric()
 
-prot_code <- '
-functions {
-    vector grsm_probs(real theta, real mu, real alpha, real beta, vector kappa) {
-        vector[rows(kappa) + 1] unsummed;
-        vector[rows(kappa) + 1] probs;
-        unsummed = append_row(rep_vector(0, 1), alpha*(theta - beta - kappa));
-        probs = softmax(cumulative_sum(unsummed));
-        return probs;
-    }
-}
-data {
-    int<lower=1> K;     	// number of countries
-    int<lower=1> T; 		// number of years
-    int<lower=1> Q; 		// number of indicators
-    int<lower=1> N; 		// number of KTQ observations
-    int<lower=1, upper=K> kk[N]; // country for observation n
-    int<lower=1, upper=T> tt[N]; // year for observation n
-    int<lower=1, upper=Q> qq[N]; // indicator for observation n
-    int<lower=0> y[N];      // score for observation n
-    int<lower=2> s[Q];      // number of steps for indicator q
-  }
-  transformed data {
-    int G[N-1];				// number of missing years until next observed country-year (G for "gap")
-    for (n in 1:N-1) {
-        G[n] = tt[n+1] - tt[n] - 1;
-    }
-  }
-  parameters {
-    real theta[K, T]; // country-year "ability"
-    vector[Q-1] beta_free; // unconstrained "difficulty" of indicator q (see Stan Development Team 2015, 61; Gelman and Hill 2007, 314-320; McGann 2014, 118-120 (using lambda))
+stan_data <- list(  K = max(x$ccode),
+                    T = max(x$tcode),
+                    Q = max(x$qcode),
+                    N = length(x$score),
+                    kk = x$ccode,
+                    tt = x$tcode,
+                    qq = x$qcode,
+                    y = x$score,
+                    us = us,
+                    S = sum(us),
+                    cs = us + 1)
 
-    real kappa_free[Q, max(s[Q])-1]; // unconstrained "step" parameters of indicator q
-    vector alpha[Q]; // discrimination of indicator q (see Stan Development Team 2015, 61 (using 1/alpha); Gelman and Hill 2007, 314-320 (using 1/alpha); McGann 2014, 118-120 (using theta))
-    real<lower=0, upper=1> sigma_theta[K]; 	// country mean opinion variance parameter (see Linzer and Stanton 2012, 12)
-    real<lower=0, upper=.1> sigma_theta_var[K]; 	// country sd opinion variance parameter
-  }
-  transformed parameters {
-    real<lower=0, upper=1> m[N]; // expected probability of random individual giving selected answer
-
-    for (n in 1:N) {
-      m[n] = inv_logit((theta[kk[n], tt[n]] - (beta[qq[n]] + mu_beta)) / alpha[qq[n]]);
-    }
-
-  }
-  model {
-    theta ~ normal(0, 1)
-    beta ~ normal(0, sigma_beta);
-    alpha ~ lognormal(0, sigma_alpha);
-    mu_beta ~ cauchy(0, 1);
-    sigma_beta ~ cauchy(0, .5);
-    sigma_alpha ~ cauchy(0, .5);
-    
-    // actual number of respondents giving selected answer
-    y_r ~ binomial(n_r, p);
-
-    for (n in 1:N) {
-      // individual probability of selected answer
-      p[n] ~ beta(b[qq[n]]*m[n]/(1 - m[n]), b[qq[n]]);
-
-      // prior for theta and var_theta for the next observed year by country as well as for all intervening missing years
-      if (n < N) {
-        if (tt[n] < T) {
-          for (g in 0:G[n]) {
-            theta[kk[n], tt[n]+g+1] ~ normal(theta[kk[n], tt[n]+g], sigma_theta[kk[n]]);
-          }
-        }
-      }
-    }
-  }
-'
 
 start <- proc.time()
-out1 <- stan(model_code = prot_code,
-             data = prot_data,
+out1 <- stan(file = "R/cmcr.stan",
+             data = stan_data,
              seed = seed,
-             iter = iter,
+             iter = 10,
              cores = cores,
              chains = chains,
              control = list(max_treedepth = 20,
