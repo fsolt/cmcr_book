@@ -75,6 +75,7 @@ transformed parameters {
       }
     }
   }
+  total = 0;
 }
 model {
   vector[J] mu;
